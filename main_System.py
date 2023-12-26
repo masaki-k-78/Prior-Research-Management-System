@@ -1,4 +1,5 @@
 from PRMS.add_Prior_Research import Add_Prior_Research
+from PRMS.search_Prior_Research import Search_Prior_Research
 
 #システムの基本的な動作を担う
 class Main_System():
@@ -23,4 +24,6 @@ class Main_System():
         APR.write_basic_info(PRList)
 
     def sr(self):
-        print("未実装")
+        path = "PRMS/Research_Data.csv"
+        SPR = Search_Prior_Research()
+        SPR.search_title(path)
