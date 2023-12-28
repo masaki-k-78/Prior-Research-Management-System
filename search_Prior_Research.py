@@ -5,15 +5,15 @@ class Search_Prior_Research():
     def __init__(self):
         print("ok")
 
-    #タイトルの部分一致検索を行う
-    def search_title(self, path):
+    #検索機能．iに入れる数値で検索対象を決める
+    def search(self, path, i):
         result_list = []
         query = input("input query: ")
         with open(path) as f:
             title_list = csv.reader(f)
 
             for n in title_list:
-                if query in n[0]:
+                if query in n[i]:
                     result_list.append(n[0])
 
             f.close()
@@ -23,3 +23,9 @@ class Search_Prior_Research():
         else:
             for n in result_list:
                 print(n)
+
+    def search_title(self, path):
+        self.search(path, 0)
+
+    def search_author(self, path):
+        self.search(path, 1)
