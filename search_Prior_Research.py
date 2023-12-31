@@ -1,4 +1,5 @@
 import csv
+from PRMS.functions_Mysql import Functions_MySQL
 
 class Search_Prior_Research():
 
@@ -29,3 +30,19 @@ class Search_Prior_Research():
 
     def search_author(self, path):
         self.search(path, 1)
+
+    def search_wMySQL(self, connection, category):
+        query = input("input query: ")
+
+        #部分一致を行うための処理
+        q1 = f"""
+        SELECT *
+        FROM mine
+        WHERE {category} LIKE "%{query}%";
+        """
+
+        FM = Functions_MySQL()
+        results = FM.read_query(connection, q1)
+        for n in results:
+            print(n)
+
