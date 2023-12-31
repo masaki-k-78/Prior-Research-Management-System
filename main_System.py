@@ -20,7 +20,7 @@ from PRMS.functions_Mysql import Functions_MySQL
 #システムの基本的な動作を担う
 class Main_System():
     def __init__(self):
-        PASS = "" #任意のパスワード(MySQL)
+        PASS = "K.masa0708" #任意のパスワード(MySQL)
         #MySQLへのコネクションの確立．
         FM = Functions_MySQL()
         connection = FM.create_db_connection("localhost", "root", PASS, "prior_research")
@@ -32,9 +32,9 @@ class Main_System():
         if user_input == "1":
             self.ar(connection)
         elif user_input == "2":
-            self.srt()
+            self.srt(connection)
         elif user_input == "3":
-            self.sra()
+            self.sra(connection)
         elif user_input == "4":
             self.shr(connection)
         else:
@@ -54,18 +54,26 @@ class Main_System():
         APR.write_basic_info_to_mysql(PRList, connection)
 
 
-    def srt(self):
-        path = "PRMS/Research_Data.csv"
+    def srt(self, connection):
+        # path = "PRMS/Research_Data.csv"
         SPR = Search_Prior_Research()
-        SPR.search_title(path)
+        # SPR.search_title(path)
 
-    def sra(self):
-        path = "PRMS/Research_Data.csv"
+        #以下，MySQLを使った実装
+        SPR.search_wMySQL(connection, "PR_title")
+
+    def sra(self, connection):
+        # path = "PRMS/Research_Data.csv"
         SPR = Search_Prior_Research()
-        SPR.search_author(path)
+        # SPR.search_author(path)
+
+        #以下，MySQLを使った実装
+        SPR.search_wMySQL(connection, "PR_author")
 
     def shr(self, connection):
         # path = "PRMS/Research_Data.csv"
         SHPR = Show_Prior_Research()
         # SHPR.show_research(path)
+
+        #以下，MySQLを使った実装
         SHPR.show_research_from_MySQL(connection)
