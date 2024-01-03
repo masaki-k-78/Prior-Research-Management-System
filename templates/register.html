@@ -5,15 +5,29 @@
 </head>
 <body>
     <h2>Please enter your infomation.</h2>
-    <form method="post" action="/completed">
-        <label>Username:</label>
-        <input type="text" name="username" required>
-        <br>
-        <label>Password:</label>
-        <input type="password" name="userpass" required>
-        <br>
-        <label>Age     :</label>
-        <input type="text" name="userage" required>
-        <br>
-        <input type="submit" value="Completed">
+    <form method="post" action="/register">
+        {{ form.csrf_token }}
+         <p>
+             {{ form.user_name.label }}<br>
+             {{ form.user_name(size=32) }}
+         </p>
+         <p>
+             {{ form.user_pass.label }}<br>
+             {{ form.user_pass(size=32) }}
+         </p>
+         <p>
+            {{ form.user_age.label }}<br>
+            {{ form.user_age(size=32) }}
+        </p>
+         <p>{{ form.submit() }}</p>
     </form>
+    <p>
+        {% for error in form.user_name.errors %}
+            <span style="color: red;">{{ error }}</span></br>
+        {% endfor %}
+        {% for error in form.user_pass.errors %}
+            <span style="color: red;">{{ error }}</span></br>
+        {% endfor %}
+    </p>
+</body>
+</html>
