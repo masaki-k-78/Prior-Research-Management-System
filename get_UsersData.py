@@ -5,8 +5,9 @@ import os
 #userにあるテーブル
 # normal_users (
 #   user_id INT AUTO_INCREMENT,
-#   user_name VARCHAR(100) NOT NULL,
-#   user_age VARCHAR(100) NOT NULL,
+#   user_name VARCHAR(40) NOT NULL,
+#   user_pass VARCHAR(40) NOT NULL,
+#   user_age VARCHAR(3) NOT NULL,
 #   PRIMARY KEY (user_id)
 #   );
 
@@ -21,7 +22,7 @@ class Get_UsersData():
 
         #MySQLへのコネクションの確立．
         FM = Functions_MySQL()
-        connection = FM.create_db_connection("localhost", "root", PASS, "users")
+        connection_users = FM.create_db_connection("localhost", "root", PASS, "users")
 
         users_dict = dict()
         usr = "normal_users"
@@ -30,7 +31,7 @@ class Get_UsersData():
         FROM {usr};
         """
 
-        results = FM.read_query(connection, q1)
+        results = FM.read_query(connection_users, q1)
         for n in results:
             users_dict[n[0]] = n[1]
         
