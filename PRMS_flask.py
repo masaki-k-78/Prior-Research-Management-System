@@ -7,7 +7,6 @@ from functions_Mysql import Functions_MySQL
 from get_UsersData import Get_UsersData
 from datetime import timedelta
 from dotenv import load_dotenv
-from flaskext.mysql import MySQL
 import os
 import secrets
 
@@ -29,7 +28,8 @@ app.config["SECRET_KEY"] = secrets.token_hex() #cookieで使用
 load_dotenv()
 PASS = os.getenv("MYSQL_PASS") 
 FM = Functions_MySQL()
-connection = FM.create_db_connection("localhost", "root", PASS, "users")
+connection_users = FM.create_db_connection("localhost", "root", PASS, "users")
+connection_research = FM.create_db_connection("localhost", "root", PASS, "prior_research")
 
 #Controller(最終的にはモジュール分ける)
 class User(UserMixin):
@@ -120,7 +120,20 @@ def register():
         INSERT INTO normal_users (user_name, user_pass, user_age) 
         VALUES (%s, %s, %s)
         '''
-        FM.execute_list_query(connection, insert_q, userList)
+        create_q = f'''
+        CREATE TABLE {form.user_name.data} (
+        research_id INT AUTO_INCREMENT,
+        PR_title VARCHAR(100) NOT NULL,
+        PR_author VARCHAR(100) NOT NULL,
+        PR_conference VARCHAR(100) NOT NULL,
+        PR_date VARCHAR(4),
+        PRIMARY KEY (research_id)
+        );
+        '''
+        #ユーザーをuserに追加
+        FM.execute_list_query(connection_users, insert_q, userList)
+        #ユーザー名のテーブルを別のdbに作成
+        FM.execute_query(connection_research, create_q)
         return redirect("/")
     return render_template("register.html", form=form)
 
