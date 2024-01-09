@@ -5,6 +5,24 @@
 </head>
 <body>
     <h1>Welcome!</h1>
-    <p>This is your page.</p>
+    <p>This is {{ user }} page.</p>
+    <table border="1">
+        <tr>
+            <th>Title</th>
+            <th>Auther</th>
+            <th>Conference</th>
+            <th>Date</th>
+        </tr>
+        {% for d in data %}
+        <tr>
+            <td>{{ d[1] }}</td>
+            <td>{{ d[2] }}</td>
+            <td>{{ d[3] }}</td>
+            <td>{{ d[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <button>search</button>
+    <button>add</button>
 </body>
 </html>
