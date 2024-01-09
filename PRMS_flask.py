@@ -86,7 +86,7 @@ def login():
         if form.user_name.data in users and form.user_pass.data == users[form.user_name.data]:
             user = User(form.user_name.data)
             login_user(user)
-            return redirect("/mypage")
+            return redirect(url_for("mypage", user=form.user_name.data))
         else:
             print("error")
     return render_template("login.html", form = form)
@@ -106,10 +106,14 @@ def login():
         
     # return render_template("main_page.html")
 
-@app.route("/mypage")
+@app.route("/mypage/<user>")
 @login_required
-def logined():
-    return render_template("mypage.html")
+def mypage(user):
+    change_q=f"""
+            SELECT *
+            FROM {user};
+            """
+    return render_template("mypage.html", user=user, data=FM.read_query(connection_research, change_q))
     
 @app.route("/register", methods=["GET", "POST"])
 def register():
