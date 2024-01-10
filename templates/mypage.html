@@ -6,6 +6,48 @@
 <body>
     <h1>Welcome!</h1>
     <p>This is {{ user }} page.</p>
+    <p>If you want to add research, enter infomation in the form below.</p>
+
+    <form method="post", action="">
+        {{ aform.hidden_tag() }}
+        <table>
+            <tr>
+                <th>{{ aform.title.label }}</th>
+                <td>{{ aform.title(size=32) }}</td>
+            </tr>
+            <tr>
+                <th>{{ aform.author.label }}</th>
+                <td>{{ aform.author(size=32) }}</td>
+            </tr>
+            <tr>
+                <th>{{ aform.conference.label }}</th>
+                <td>{{ aform.conference(size=32) }}</td>
+            </tr>
+            <tr>
+                <th>{{ aform.date.label }}</th>
+                <td>{{ aform.date(size=32) }}</td>
+            </tr>
+            <tr>
+                <td>{{ aform.submit() }}</td>
+            </tr>
+        </table>
+    </form>
+
+    <p>If you want to search research, enter query in the form below.</p>
+
+    <form method="post" action="">
+        {{ sform.hidden_tag() }}
+        <table>
+            <tr>
+                <th>{{ sform.query.label }}</th>
+                <td>{{ sform.query(size=32) }}</td>
+                <td>{{ sform.submit() }}</td>
+            </tr>
+        </table>
+    </form>
+
+    <br>
+    
     <table border="1">
         <tr>
             <th>Title</th>
@@ -13,6 +55,7 @@
             <th>Conference</th>
             <th>Date</th>
         </tr>
+        {% if data != None %}
         {% for d in data %}
         <tr>
             <td>{{ d[1] }}</td>
@@ -21,8 +64,7 @@
             <td>{{ d[4] }}</td>
         </tr>
         {% endfor %}
+        {% endif %}
     </table>
-    <button>search</button>
-    <button>add</button>
 </body>
 </html>
