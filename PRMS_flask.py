@@ -1,3 +1,5 @@
+from collections.abc import Mapping, Sequence
+from typing import Any
 from flask import Flask, request, render_template, redirect, url_for, session
 from flask_login import LoginManager, login_required, UserMixin, login_user, logout_user
 from flask_wtf import FlaskForm
@@ -67,7 +69,32 @@ class RegisterForm(FlaskForm):
         
     def validate_user_pass(self, user_pass): #パスワードの長さ確認
         if len(user_pass.data) >= 40:
-            raise ValidationError("Please enter the password less than 40 characters.")   
+            raise ValidationError("Please enter the password less than 40 characters.")
+
+class SearchForm(FlaskForm):
+    query = StringField("Query")
+    submit = SubmitField("Search")
+
+    def validate_query(self, query):
+        if query == None:
+            raise ValidationError("")
+
+class AddForm(FlaskForm):
+    title = StringField("Title")
+    author = StringField("Author")
+    conference = StringField("Conference")
+    date = StringField("Date")
+    submit = SubmitField("Add")
+
+    def validate_title(self, title):
+        ...
+    def validate_author(self, author):
+        ...
+    def validate_conference(self, conference):
+        ...
+    def validate_date(self, date):
+        ...
+
 
 #実際の処理(Model)
 @login_manager.user_loader
@@ -106,15 +133,38 @@ def login():
         
     # return render_template("main_page.html")
 
-@app.route("/mypage/<user>")
+@app.route("/mypage/<user>", methods=["GET", "POST"])
 @login_required
 def mypage(user):
-    change_q=f"""
+    sform = SearchForm()
+    aform = AddForm()
+    if sform.validate_on_submit(): #何か入力があった場合
+        change_q=f"""
+            SELECT *
+            FROM {user}
+            WHERE PR_title LIKE "%{sform.query.data}%";
+            """
+    else:
+        change_q=f"""
             SELECT *
             FROM {user};
             """
-    return render_template("mypage.html", user=user, data=FM.read_query(connection_research, change_q))
     
+    if aform.validate_on_submit():
+        #データをリスト化
+        alist = []
+        alist.append((aform.title.data, aform.author.data, aform.conference.data, aform.date.data))
+
+        #リスト化したデータをDBに追加
+        add_q = f'''
+        INSERT INTO {user} (PR_title, PR_author, PR_conference, PR_date) 
+        VALUES (%s, %s, %s, %s)
+        '''
+        FM.execute_list_query(connection_research, add_q, alist)
+
+    return render_template("mypage.html", sform=sform, aform=aform, user=user, data=FM.read_query(connection_research, change_q))
+    
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
