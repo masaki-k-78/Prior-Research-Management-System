@@ -20,7 +20,7 @@ from PRMS.functions_Mysql import Functions_MySQL
 #システムの基本的な動作を担う
 class Main_System():
     def __init__(self):
-        PASS = "K.masa0708" #任意のパスワード(MySQL)
+        PASS = "" #任意のパスワード(MySQL)
         #MySQLへのコネクションの確立．
         FM = Functions_MySQL()
         connection = FM.create_db_connection("localhost", "root", PASS, "prior_research")
