@@ -77,7 +77,7 @@ class SearchForm(FlaskForm):
 
     def validate_query(self, query):
         if query == None:
-            raise ValidationError("")
+            raise ValidationError("query is none")
 
 class AddForm(FlaskForm):
     title = StringField("Title")
@@ -87,13 +87,28 @@ class AddForm(FlaskForm):
     submit = SubmitField("Add")
 
     def validate_title(self, title):
-        ...
+        if title == None:
+            raise ValidationError("")
+        elif len(title.data) == 0 or len(title.data) > 100:
+            raise ValidationError("title length : 0 < title < 100")
+
     def validate_author(self, author):
-        ...
+        if author == None:
+            raise ValidationError("")
+        elif len(author.data) == 0 or len(author.data) > 100:
+            raise ValidationError("author length : 0 < title < 100")
+        
     def validate_conference(self, conference):
-        ...
+        if conference == None:
+            raise ValidationError("")
+        elif len(conference.data) == 0 or len(conference.data) > 100:
+            raise ValidationError("title length : 0 < title < 100")
+        
     def validate_date(self, date):
-        ...
+        if date == None:
+            raise ValidationError("")
+        elif len(date.data) == 0 or len(date.data) > 4:
+            raise ValidationError("date length : 0 < title < 100")
 
 
 #実際の処理(Model)
@@ -101,9 +116,11 @@ class AddForm(FlaskForm):
 def load_user(user_id):
   return User(user_id)
 
+
 @app.route("/")
 def main_page():
     return render_template("main_page.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -118,49 +135,38 @@ def login():
             print("error")
     return render_template("login.html", form = form)
 
-    # 一応残してある
-    # if request.method == "POST":
-    #     print(request.form["user_name"])
-    #     print(request.form["Name"])
-    #     username = request.form["username"]
-    #     userpass = request.form["userpass"]
-
-    #     if username in users and users[username] == userpass:
-    #         session["username"] = username
-    #         return redirect(url_for("logined"))
-    #     else:
-    #         return render_template("main_page.html", error="Invalid credentials")
-        
-    # return render_template("main_page.html")
 
 @app.route("/mypage/<user>", methods=["GET", "POST"])
 @login_required
 def mypage(user):
     sform = SearchForm()
     aform = AddForm()
-    if sform.validate_on_submit(): #何か入力があった場合
+    change_q=f"""
+            SELECT *
+            FROM {user};
+            """
+
+    if sform.query.data != None:
         change_q=f"""
             SELECT *
             FROM {user}
             WHERE PR_title LIKE "%{sform.query.data}%";
             """
-    else:
-        change_q=f"""
-            SELECT *
-            FROM {user};
-            """
-    
-    if aform.validate_on_submit():
-        #データをリスト化
-        alist = []
-        alist.append((aform.title.data, aform.author.data, aform.conference.data, aform.date.data))
 
-        #リスト化したデータをDBに追加
-        add_q = f'''
-        INSERT INTO {user} (PR_title, PR_author, PR_conference, PR_date) 
-        VALUES (%s, %s, %s, %s)
-        '''
-        FM.execute_list_query(connection_research, add_q, alist)
+    if aform.title.data != None and aform.author.data != None and aform.conference.data != None and aform.date.data != None:
+        if aform.validate_on_submit():
+            #データをリスト化
+            alist = []
+            alist.append((aform.title.data, aform.author.data, aform.conference.data, aform.date.data))
+
+            #リスト化したデータをDBに追加
+            add_q = f'''
+            INSERT INTO {user} (PR_title, PR_author, PR_conference, PR_date) 
+            VALUES (%s, %s, %s, %s)
+            '''
+            FM.execute_list_query(connection_research, add_q, alist)
+            print("redirect")
+            return redirect(url_for("mypage", user=user))
 
     return render_template("mypage.html", sform=sform, aform=aform, user=user, data=FM.read_query(connection_research, change_q))
     
@@ -191,26 +197,12 @@ def register():
         return redirect("/")
     return render_template("register.html", form=form)
 
-    # #処理を見るためにいったん残しておく
-    # userList = [request.form["username"], request.form["userpass"], request.form["userage"]]
 
-    # #MySQLに接続するためのパスワードを環境変数として.envに保存して使用する．
-    # load_dotenv()
-    # PASS = os.getenv("MYSQL_PASS") 
-
-    # #MySQLへのコネクションの確立．
-    # FM = Functions_MySQL()
-    # connection = FM.create_db_connection("localhost", "root", PASS, "users")
-
-    # q1 = f'''
-    #     INSERT INTO normal_users (user_name, user_pass, user_age) 
-    #     VALUES (%s, %s, %s)
-    #     '''
-    # #ユーザデータの追加
-    # FM.execute_list_query(connection, q1, userList)
-
-    # return render_template("main_page.html")
-
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("/login")
 
 if __name__ == "__main__":
     app.run(port=12345, debug=False)
