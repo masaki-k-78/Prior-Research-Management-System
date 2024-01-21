@@ -28,6 +28,22 @@
                 <td>{{ aform.date(size=32) }}</td>
             </tr>
             <tr>
+                <th>{{ aform.keyword.label }}</th>
+                <td>{{ aform.keyword(size=32) }}</td>
+            </tr>
+            <tr>
+                <th>{{ aform.reference.label }}</th>
+                <td>{{ aform.reference(size=32) }}</td>
+            </tr>
+            <tr>
+                <th>{{ aform.club.label }}</th>
+                <td>{{ aform.club(size=32) }}</td>
+            </tr>
+            <tr>
+                <th>{{ aform.note.label }}</th>
+                <td>{{ aform.note(size=32) }}</td>
+            </tr>
+            <tr>
                 <td>{{ aform.submit() }}</td>
             </tr>
         </table>
@@ -48,24 +64,37 @@
 
     <br>
     
-    <table border="1">
-        <tr>
-            <th>Title</th>
-            <th>Auther</th>
-            <th>Conference</th>
-            <th>Date</th>
-        </tr>
-        {% if data != None %}
-        {% for d in data %}
-        <tr>
-            <td>{{ d[1] }}</td>
-            <td>{{ d[2] }}</td>
-            <td>{{ d[3] }}</td>
-            <td>{{ d[4] }}</td>
-        </tr>
-        {% endfor %}
-        {% endif %}
-    </table>
+        <table border="1">
+            <tr>
+                <th>Title</th>
+                <th>Auther</th>
+                <th>Conference</th>
+                <th>Date</th>
+                <th>Keyword</th>
+                <th>Reference</th>
+                <th>Jounal Club</th>
+                <th>Note</th>
+                <th></th>
+            </tr>
+            {% if data != None %}
+            {% for d in data %}
+            <tr>
+                <td>{{ d[1] }}</td>
+                <td>{{ d[2] }}</td>
+                <td>{{ d[3] }}</td>
+                <td>{{ d[4] }}</td>
+                <td>{{ d[5] }}</td>
+                <td>{{ d[6] }}</td>
+                <td>{{ d[7] }}</td>
+                <td>{{ d[8] }}</td>
+                <form method="post" action="{{ url_for('delete', user = user, id = d[0])}}">
+                    <td><input type="submit" value=Delete></td>
+                </form>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </table>
+    </form>
     <br>
     <br>
     <button type="button" onclick="location.href='/logout'">logout</button>
