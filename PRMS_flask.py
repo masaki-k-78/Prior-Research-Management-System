@@ -84,6 +84,10 @@ class AddForm(FlaskForm):
     author = StringField("Author")
     conference = StringField("Conference")
     date = StringField("Date")
+    keyword = StringField("Keyword")
+    reference = StringField("Reference")
+    club = StringField("Jounal Club")
+    note = StringField("Note") 
     submit = SubmitField("Add")
 
     def validate_title(self, title):
@@ -108,7 +112,23 @@ class AddForm(FlaskForm):
         if date == None:
             raise ValidationError("")
         elif len(date.data) == 0 or len(date.data) > 4:
-            raise ValidationError("date length : 0 < title < 100")
+            raise ValidationError("date length : 0 < date < 4")
+        
+    def validate_keyword(self, keyword):
+        if len(keyword.data) == 0 or len(keyword.data) > 50:
+            raise ValidationError("keyword length : 0 < keyword < 50")
+        
+    def validate_reference(self, reference):
+        if len(reference.data) == 0 or len(reference.data) > 50:
+            raise ValidationError("reference length : 0 < reference < 50")
+        
+    def validate_club(self, club):
+        if len(club.data) == 0 or len(club.data) > 8:
+            raise ValidationError("jounal clab length : 0 < jounal club < 8")
+        
+    def validate_note(self, note):
+        if len(note.data) == 0 or len(note.data) > 50:
+            raise ValidationError("note length : 0 < note < 100")
 
 
 #実際の処理(Model)
@@ -157,19 +177,36 @@ def mypage(user):
         if aform.validate_on_submit():
             #データをリスト化
             alist = []
-            alist.append((aform.title.data, aform.author.data, aform.conference.data, aform.date.data))
+            alist.append((aform.title.data, aform.author.data, aform.conference.data, aform.date.data, aform.keyword.data, aform.reference.data, aform.club.data, aform.note.data))
 
             #リスト化したデータをDBに追加
-            add_q = f'''
-            INSERT INTO {user} (PR_title, PR_author, PR_conference, PR_date) 
-            VALUES (%s, %s, %s, %s)
-            '''
+            add_q = f"""
+            INSERT INTO {user} (PR_title, PR_author, PR_conference, PR_date, PR_keyword, PR_reference, PR_club, PR_note) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """
             FM.execute_list_query(connection_research, add_q, alist)
             print("redirect")
             return redirect(url_for("mypage", user=user))
+    
 
     return render_template("mypage.html", sform=sform, aform=aform, user=user, data=FM.read_query(connection_research, change_q))
     
+@app.route("/mypage/<user>/<update_id>", methods=["GET", "POST"])
+@login_required
+def update(user, update_id):
+    return render_template("update.html", user=user, update_id=update_id)
+
+@app.route("/mypage/<user>/<id>/delete", methods=["GET", "POST"])
+@login_required
+def delete(user, id):
+    delete_q = f"""
+    DELETE FROM {user}
+    WHERE research_id = {id};
+    """
+
+    FM.execute_query(connection_research, delete_q)
+    return redirect(url_for("mypage", user=user))
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -187,6 +224,10 @@ def register():
         PR_author VARCHAR(100) NOT NULL,
         PR_conference VARCHAR(100) NOT NULL,
         PR_date VARCHAR(4),
+        PR_keyword VARCHAR(50),
+        PR_reference VARCHAR(50),
+        PR_club VARCHAR(8),
+        PR_note VARCHAR(100),
         PRIMARY KEY (research_id)
         );
         '''
